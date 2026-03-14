@@ -9,6 +9,10 @@ description: Fan out a list of tasks to subagents with unified tracking and stat
 
 This skill distributes work across multiple subagents with unified status tracking. It creates a to-do list, spawns subagents, maintains a live discussion post of task status, steers subagents when they encounter known issues, and summarizes outputs when complete. Subagents can be spawned asynchronously to complete tasks in parallel.
 
+## Requirements
+
+- **`todo` MCP server** — used for task list creation and item tracking. See [haliphax-openclaw/todo-mcp-server](https://github.com/haliphax-openclaw/todo-mcp-server).
+
 ## When to Use
 
 - User provides multiple tasks ("help me do X, Y, and Z")
