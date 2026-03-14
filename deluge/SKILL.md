@@ -6,12 +6,12 @@ Use this skill to manage torrents on a remote Deluge WebUI instance via JSON-RPC
 
 - Python 3 with `requests` installed
 - A running Deluge WebUI
-- **`--url`** and **`--password`** are required for every command
+- **`--url`** is required; password must be set via the `DELUGE_PASSWORD` environment variable
 
 ## Usage
 
 ```
-python bin/deluge_client.py --url <URL> --password <PASSWORD> [--verify] COMMAND
+python bin/deluge_client.py --url <URL> [--verify] COMMAND
 ```
 
 ### Global Options
@@ -19,7 +19,6 @@ python bin/deluge_client.py --url <URL> --password <PASSWORD> [--verify] COMMAND
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--url` | *(required)* | Full Deluge WebUI URL (e.g. `http://deluge.home.arpa:8112`) |
-| `--password` | *(optional)* | WebUI password — falls back to `DELUGE_PASSWORD` env var |
 | `--verify` | off | Verify SSL certificate |
 
 SSL is determined automatically from the URL scheme (`http` vs `https`).
@@ -30,44 +29,44 @@ SSL is determined automatically from the URL scheme (`http` vs `https`).
 List all torrents with state, progress, and size.
 
 ```
-python bin/deluge_client.py --url URL --password PASSWORD list
+python bin/deluge_client.py --url URL list
 ```
 
 ### add
 Add a torrent by magnet URI or HTTP URL.
 
 ```
-python bin/deluge_client.py --url URL --password PASSWORD add "magnet:?xt=urn:btih:..."
-python bin/deluge_client.py --url URL --password PASSWORD add "https://example.com/file.torrent"
+python bin/deluge_client.py --url URL add "magnet:?xt=urn:btih:..."
+python bin/deluge_client.py --url URL add "https://example.com/file.torrent"
 ```
 
 ### remove
 Remove a torrent by ID (full or 8-char prefix). Use `--with-data` to also delete downloaded files.
 
 ```
-python bin/deluge_client.py --url URL --password PASSWORD remove <TORRENT_ID>
-python bin/deluge_client.py --url URL --password PASSWORD remove <TORRENT_ID> --with-data
+python bin/deluge_client.py --url URL remove <TORRENT_ID>
+python bin/deluge_client.py --url URL remove <TORRENT_ID> --with-data
 ```
 
 ### pause
 Pause a torrent by ID.
 
 ```
-python bin/deluge_client.py --url URL --password PASSWORD pause <TORRENT_ID>
+python bin/deluge_client.py --url URL pause <TORRENT_ID>
 ```
 
 ### resume
 Resume a paused torrent by ID.
 
 ```
-python bin/deluge_client.py --url URL --password PASSWORD resume <TORRENT_ID>
+python bin/deluge_client.py --url URL resume <TORRENT_ID>
 ```
 
 ### call
 Make a raw JSON-RPC call to the Deluge API. Params must be a JSON array string.
 
 ```
-python bin/deluge_client.py --url URL --password PASSWORD call core.get_config_value '["download_location"]'
+python bin/deluge_client.py --url URL call core.get_config_value '["download_location"]'
 ```
 
 ## Notes
