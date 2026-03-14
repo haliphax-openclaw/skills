@@ -4,7 +4,6 @@ These are custom OpenClaw skills I have developed in coordination with OpenClaw 
 
 ## Skills
 
-- `<skill folder name>` - <brief description of skill>
-- `<skill folder name>` - <brief description of skill>
-- `<skill folder name>` - <brief description of skill>
+- `fan-out` - Fan out a list of tasks to subagents with unified tracking and status updates.
+- `rtsp-snapshot` - Captures a still frame from an RTSP camera stream using ffmpeg.
 
