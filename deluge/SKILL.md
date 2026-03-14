@@ -11,7 +11,7 @@ Use this skill to manage torrents on a remote Deluge WebUI instance via JSON-RPC
 ## Usage
 
 ```
-python bin/deluge_client.py --url <URL> [--verify] COMMAND
+uv run bin/deluge_client.py --url <URL> [--verify] COMMAND
 ```
 
 ### Global Options
@@ -29,44 +29,44 @@ SSL is determined automatically from the URL scheme (`http` vs `https`).
 List all torrents with state, progress, and size.
 
 ```
-python bin/deluge_client.py --url URL list
+uv run bin/deluge_client.py --url URL list
 ```
 
 ### add
 Add a torrent by magnet URI or HTTP URL.
 
 ```
-python bin/deluge_client.py --url URL add "magnet:?xt=urn:btih:..."
-python bin/deluge_client.py --url URL add "https://example.com/file.torrent"
+uv run bin/deluge_client.py --url URL add "magnet:?xt=urn:btih:..."
+uv run bin/deluge_client.py --url URL add "https://example.com/file.torrent"
 ```
 
 ### remove
 Remove a torrent by ID (full or 8-char prefix). Use `--with-data` to also delete downloaded files.
 
 ```
-python bin/deluge_client.py --url URL remove <TORRENT_ID>
-python bin/deluge_client.py --url URL remove <TORRENT_ID> --with-data
+uv run bin/deluge_client.py --url URL remove <TORRENT_ID>
+uv run bin/deluge_client.py --url URL remove <TORRENT_ID> --with-data
 ```
 
 ### pause
 Pause a torrent by ID.
 
 ```
-python bin/deluge_client.py --url URL pause <TORRENT_ID>
+uv run bin/deluge_client.py --url URL pause <TORRENT_ID>
 ```
 
 ### resume
 Resume a paused torrent by ID.
 
 ```
-python bin/deluge_client.py --url URL resume <TORRENT_ID>
+uv run bin/deluge_client.py --url URL resume <TORRENT_ID>
 ```
 
 ### call
 Make a raw JSON-RPC call to the Deluge API. Params must be a JSON array string.
 
 ```
-python bin/deluge_client.py --url URL call core.get_config_value '["download_location"]'
+uv run bin/deluge_client.py --url URL call core.get_config_value '["download_location"]'
 ```
 
 ## Notes
