@@ -24,6 +24,7 @@ When multiple agents need to communicate in the same shared context to brainstor
 - `id` - The unique identifier of the room ID so that it can be isolated from other rituals. If no ID is provided, one should be chosen by the agent handling the request to initiate a ritual.
 - `facilitator` - The agent ID of the agent responsible for facilitating the ritual. This agent can be a member of the ritual as well, but that is not required. The facilitator steers the conversation to remain on topic and surfaces any necessary information or requests to the user. The facilitator should provide regular status updates as to the progress of the ritual, since the user will not be able to see the discussion taking place. If no facilitator is provided, the current agent should assume the role. If an agent ID is provided, a new subagent for that agent ID should be spun up specifically for the ritual. If provided with an existing session ID, connect the live session's agent to the ritual as the facilitator.
 - `members` - A list of agents or subagents that will be added to the ritual and expected to participate in the discussion. Existing session IDs can be provided to include current sessions' agents; otherwise, new subagents of the specified agent IDs will be spun up specifically for the ritual.
+- `mode` - The spawn mode for subagents created for the ritual. Defaults to `run` (one-shot, internal only — no Discord threads created). Set to `session` if Discord thread presence is desired for each subagent (requires `thread: true` on spawn).
 - `purpose` - The reason for the ritual. This could be a topic to brainstorm, an issue to troubleshoot, a concept to research, a request for concensus on a decision, or any other topic that would require coordination between multiple entities.
 
 ### Step 2: Setup the Room
@@ -31,7 +32,7 @@ When multiple agents need to communicate in the same shared context to brainstor
 - If no `id` was provided, the `facilitator` should generate one
 - If the `facilitator` is not the agent handling the request, then the agent handling the request should hand this process off to the facilitator
 - The `facilitator` should join a new room with the appropriate ID (this will create the room if it doesn't exist)
-- If `members` includes subagents, the `facilitator` should spawn any requested subagents with instructions to read this skill document and await the ritual prompt
+- If `members` includes subagents, the `facilitator` should spawn any requested subagents using the specified `mode` (default `run`). If `mode` is `session`, pass `thread: true` on the spawn call. Include instructions to read this skill document and await the ritual prompt
 - If `members` includes live agents, the `facilitator` should message those agents' sessions with instructions to read this skill document and await the ritual prompt
 
 ### Step 3: Perform the Ritual
