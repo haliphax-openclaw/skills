@@ -29,8 +29,8 @@ When multiple agents need to communicate in the same shared context to brainstor
 
 ### Step 2: Setup the Room
 
+- If the `facilitator` is not the agent handling the request, then the agent handling the request should hand this process off to the facilitator and step back
 - If no `id` was provided, the `facilitator` should generate one
-- If the `facilitator` is not the agent handling the request, then the agent handling the request should hand this process off to the facilitator
 - The `facilitator` should join a new room with the appropriate ID (this will create the room if it doesn't exist)
 - If `members` includes subagents, the `facilitator` should spawn any requested subagents using the specified `mode` (default `run`). If `mode` is `session`, pass `thread: true` on the spawn call. Include instructions to read this skill document and await the ritual prompt
 - If `members` includes live agents, the `facilitator` should message those agents' sessions with instructions to read this skill document and await the ritual prompt
