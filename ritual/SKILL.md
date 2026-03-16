@@ -25,7 +25,7 @@ When multiple agents need to communicate in the same shared context to brainstor
 - `facilitator` - The agent ID of the agent responsible for facilitating the ritual. This agent can be a member of the ritual as well, but that is not required. The facilitator steers the conversation to remain on topic and surfaces any necessary information or requests to the user. The facilitator should provide regular status updates as to the progress of the ritual, since the user will not be able to see the discussion taking place. If no facilitator is provided, the current agent should assume the role. If an agent ID is provided, a new subagent for that agent ID should be spun up specifically for the ritual. If provided with an existing session ID, connect the live session's agent to the ritual as the facilitator.
 - `members` - A list of agents or subagents that will be added to the ritual and expected to participate in the discussion. Existing session IDs can be provided to include current sessions' agents; otherwise, new subagents of the specified agent IDs will be spun up specifically for the ritual.
 - `mode` - The spawn mode for subagents created for the ritual. Defaults to `run` (one-shot, internal only — no Discord threads created). Set to `session` for multi-phase rituals that require human input between steps (requires `thread: true` on spawn, which creates Discord threads). Use `run` for simple, single-phase rituals. Use `session` when the facilitator needs to steer agents between phases via `sessions_send` or `subagents(action=steer)`.
-- `purpose` - The reason for the ritual. This could be a topic to brainstorm, an issue to troubleshoot, a concept to research, a request for concensus on a decision, or any other topic that would require coordination between multiple entities.
+- `purpose` - The reason for the ritual. This could be a topic to brainstorm, an issue to troubleshoot, a concept to research, a request for consensus on a decision, or any other topic that would require coordination between multiple entities.
 
 ### Step 2: Setup the Room
 
@@ -46,6 +46,25 @@ When multiple agents need to communicate in the same shared context to brainstor
 
 - If a stalemate has been reached or the conversation is carrying on too long, the `facilitator` should request guidance from the user
 - When the conversation has concluded (either from consensus or at the user's request), the `facilitator` should provide a summary of the ritual to the user and instruct all `members` to leave the room
+
+## Cost Consciousness
+
+Rituals multiply token usage roughly in proportion to the number of participating agents. Each agent runs its own session with full context (system prompt, skill instructions, room history), and every round of discussion means every agent reads and responds.
+
+As a rough guide:
+
+| Setup | Approximate Token Usage |
+|---|---|
+| Single agent task | ~15-25k tokens |
+| 4-agent ritual, 2 rounds | ~80-100k tokens |
+| 4-agent ritual, 4 rounds | ~150-200k+ tokens |
+
+The cost scales with:
+- **Number of agents** — each one is a full session
+- **Number of discussion rounds** — every round means every agent processes and responds
+- **Context size** — agents with larger system prompts or longer room histories use more input tokens
+
+For cost-sensitive situations, keep rituals focused: fewer agents, fewer rounds, and clear prompts that minimize back-and-forth. A well-scoped 2-agent ritual can be just as effective as a 5-agent free-for-all.
 
 ## Tool Reference
 
