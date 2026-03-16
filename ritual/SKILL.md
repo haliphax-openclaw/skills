@@ -7,11 +7,11 @@ description: Facilitates an isolated meeting, or "ritual" between multiple agent
 
 ## Overview
 
-Facilitates an isolated meeting, or "ritual" between multiple agents or subagents in order to brainstorm, provide feedback, execute concurrent work related to the same task, reach consensus, etc. The ritual discussion takes place simultaneously using available `rooms` tools.
+Facilitates an isolated meeting, or "ritual" between multiple agents or subagents in order to brainstorm, provide feedback, execute concurrent work related to the same task, reach consensus, etc. The ritual discussion takes place simultaneously using available `rooms` extension tools.
 
 ## Requirements
 
-The `rooms` tools must be installed. See [rooms](https://github.com/haliphax-openclaw/extensions/tree/main/rooms).
+The `rooms` extension must be installed. See [rooms](https://github.com/haliphax-openclaw/extensions/tree/main/rooms).
 
 ## When to Use
 
