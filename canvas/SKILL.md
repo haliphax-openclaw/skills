@@ -52,6 +52,8 @@ The server maps agent IDs to workspace canvas directories and serves files at `/
 - **Long-lived JSONL files** — Store in `canvas/jsonl/` for dashboards and surfaces you want to persist and re-push across sessions
 - **Temporary JSONL files** — Store in `canvas/tmp/` for short-lived session work, experiments, and one-off surfaces
 
+> **Note:** The `jsonl/` and `tmp/` subdirectories are ignored by the file watcher by default. Files placed there won't trigger iframe reloads. This is configurable via the `OPENCLAW_CANVAS_IGNORE_DIRS` environment variable.
+
 ```
 ~/.openclaw/workspaces/<agent-id>/canvas/
 ├── index.html               # static HTML served via iframe
@@ -123,6 +125,8 @@ A2UI surface state is persisted in a SQLite cache at:
 
 ```
 ~/.openclaw-canvas/a2ui-cache.db
+
+> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
 ```
 
 Table: `a2ui_surfaces`
@@ -140,11 +144,17 @@ Query examples:
 # List all surfaces
 sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT surfaceId, root FROM a2ui_surfaces"
 
+> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
+
 # Dump a surface's components
 sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT components FROM a2ui_surfaces WHERE surfaceId='main'" | jq .
 
+> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
+
 # Check data sources
 sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT json_extract(dataModel, '$.\$sources') FROM a2ui_surfaces WHERE surfaceId='main'" | jq .
+
+> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
 ```
 
 ## JSONL Command Reference
@@ -170,5 +180,22 @@ Every A2UI push is a newline-delimited sequence of JSON commands:
 
 For the full list of available A2UI components, their JSONL schemas, and use cases, see:
 
-- [references/components.md](references/components.md) — All component types with schemas and examples
+- [references/components.md](references/components.md) — Full component reference (layout, containers, display, inputs)
 - [references/reactive.md](references/reactive.md) — Data sources, filtering, aggregates, and Repeat templates
+- [references/deep-linking.md](references/deep-linking.md) — `openclaw://` URL scheme for triggering agent runs from canvas content
+
+### Component summary
+
+| Category | Components |
+|----------|-----------|
+| Layout | Column, Row, Stack, Spacer, Divider |
+| Containers | Accordion (collapsible panels), Tabs (switchable tabbed panels) |
+| Display | Text, Badge, Image, ProgressBar, Table, Repeat |
+| Input | Button, Checkbox, Select, MultiSelect, Slider |
+
+### Key features
+
+- **Sorting** — Table and Repeat support optional `sortable` prop. Tables sort by clicking column headers (⬆/⬇); Repeat includes a sort direction dropdown.
+- **Filtering** — Select and MultiSelect bind to data sources for reactive filtering. Clearing a MultiSelect shows all data (empty selection = no filter).
+- **Reactive props** — Accordion `expanded` and Tabs `active` props react to surface updates, allowing agents to programmatically toggle panels or switch tabs.
+- **Deep linking** — HTML content can include `openclaw://` links that trigger agent runs via a confirmation dialog.

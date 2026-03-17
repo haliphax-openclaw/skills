@@ -1,19 +1,15 @@
-# A2UI Components Reference
+# A2UI Component Reference
 
-All components are specified as JSONL within `surfaceUpdate` commands. Each component has an `id` and a `component` object keyed by type name.
-
-```jsonl
-{"surfaceUpdate":{"surfaceId":"main","components":[{"id":"my-id","component":{"ComponentType":{...props}}}]}}
-```
+All components are defined in JSONL surface updates as `{"ComponentName": { ...props }}` and referenced by ID in the component tree.
 
 ## Layout Components
 
 ### Column
 
-Vertical stack of child components. Use as the root layout or to group elements vertically.
+Vertical flex container. Renders children top-to-bottom with an 8px gap.
 
 ```json
-{"Column": {"children": ["child-id-1", "child-id-2", "child-id-3"]}}
+{"Column": {"children": ["header", "content", "footer"]}}
 ```
 
 | Prop | Type | Description |
@@ -22,10 +18,10 @@ Vertical stack of child components. Use as the root layout or to group elements 
 
 ### Row
 
-Horizontal layout of child components with gap spacing. Use for side-by-side elements like filter controls, stat badges, or title + version.
+Horizontal flex container. Renders children left-to-right with a 16px gap.
 
 ```json
-{"Row": {"children": ["left-item", "spacer", "right-item"]}}
+{"Row": {"children": ["label", "input", "button"]}}
 ```
 
 | Prop | Type | Description |
@@ -34,118 +30,172 @@ Horizontal layout of child components with gap spacing. Use for side-by-side ele
 
 ### Stack
 
-Generic container for layered/stacked children. Similar to Column but for overlay-style layouts.
+Layered container. Children are positioned absolutely on top of each other (z-stacked).
 
 ```json
-{"Stack": {"children": ["background", "foreground"]}}
+{"Stack": {"children": ["background", "overlay"]}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `string[]` | Ordered list of child component IDs |
+| `children` | `string[]` | Ordered list of child component IDs (later items render on top) |
 
 ### Spacer
 
-Flexible space that pushes siblings apart in a Row or Column. No props.
+Flexible space filler. Expands to fill available space in a Row or Column (`flex: 1`). Takes no props.
 
 ```json
 {"Spacer": {}}
 ```
 
-Use case: Push a version label to the right side of a Row while a filter stays left.
-
 ### Divider
 
-Horizontal rule separator. No props.
+Horizontal rule. Renders a 1px border with 8px vertical margin. Takes no props.
 
 ```json
 {"Divider": {}}
 ```
 
-Use case: Visual separation between dashboard sections.
+---
+
+## Container Components
+
+### Accordion
+
+Collapsible container with expandable/collapsible panels. Each panel has a clickable header that toggles visibility of its child component.
+
+```json
+{"Accordion": {"panels": [{"title": "Section 1", "child": "section-1-content"}, {"title": "Section 2", "child": "section-2-content"}], "mode": "single", "expanded": [0]}}
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `panels` | `{ title: string, child: string }[]` | Panel definitions — `title` is the header text, `child` is the component ID to render |
+| `mode` | `string` | `"single"` (default) — one panel open at a time; `"multi"` — multiple panels can be open simultaneously |
+| `expanded` | `number[]` | Optional array of panel indices to start expanded (default: all collapsed) |
+
+Panel headers display ▶ when collapsed and ▼ when expanded. In `single` mode, opening a panel automatically closes any other open panel. Both `mode` and `expanded` react to prop changes from surface updates, allowing agents to programmatically toggle panels.
+
+### Tabs
+
+Container that organizes child components into switchable tabbed panels.
+
+```json
+{"Tabs": {"tabs": [{"label": "Overview", "child": "overview-content"}, {"label": "Details", "child": "details-content"}], "active": 0, "position": "top", "height": "auto"}}
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `tabs` | `{ label: string, child: string }[]` | Tab definitions — `label` is the tab header text, `child` is the component ID to render |
+| `active` | `number` | 0-based index of the initially active tab (default: `0`) |
+| `position` | `string` | Tab bar placement: `"top"` (default), `"bottom"`, `"left"`, `"right"`, or `"hidden"` |
+| `height` | `string` | Content panel height. `"auto"` (default) sizes to the tallest child; a CSS value (e.g. `"300px"`, `"50vh"`) sets a fixed height with `overflow: auto` |
+
+When `height` is `"auto"`, all tab panels remain in the DOM (inactive panels use `visibility: hidden; position: absolute`) so the content area grows to accommodate the tallest child. When `position` is `"hidden"`, the tab bar is not rendered — useful when tab switching is driven programmatically via surface updates.
+
+The `active` prop reacts to surface updates, allowing agents to switch tabs programmatically. Top/bottom tab bars wrap labels to the next line when they overflow. Left/right tab bars size to their widest label, capped at 33% of the viewport.
+
+---
 
 ## Display Components
 
 ### Text
 
-Text display with semantic HTML tag hints. Supports static text or data source binding.
+Text display component. Renders as `<p>` by default, or as heading/span based on `usageHint`.
+
+**Static mode:**
 
 ```json
-{"Text": {"text": "Dashboard Title", "usageHint": "h1"}}
-{"Text": {"text": {"literalString": "Also valid"}, "usageHint": "body"}}
+{"Text": {"text": "Hello world", "usageHint": "h2"}}
+```
+
+**Data source mode:**
+
+```json
+{"Text": {"dataSource": {"source": "orders", "aggregate": {"fn": "sum", "field": "total", "format": "compact"}, "map": {"text": "$value"}}, "usageHint": "h1"}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `text` | `string` or `{ literalString: string }` | Display text |
-| `usageHint` | `string` | HTML tag: `h1`–`h6`, `body` (→ `<p>`), `label` (→ `<span>`) |
-| `dataSource` | `DataSourceBinding` | Bind to data source for dynamic text |
+| `text` | `string \| { literalString: string }` | Static text content |
+| `usageHint` | `string` | HTML tag hint: `h1`–`h6`, `body` (→ `<p>`), `label` (→ `<span>`) |
+| `dataSource` | `DataSourceBinding` | Bind to a data source |
 
-Use cases: Headings, labels, section titles, dynamic counters.
+Display priority: `mappedProps.text` > `aggregatedValue` > static `text`.
 
 ### Badge
 
-Inline colored badge with variant styling. Supports static text or aggregate data binding.
+Inline badge with variant styling. Supports static text or data source binding with aggregates.
+
+**Static mode:**
 
 ```json
-{"Badge": {"text": "3 active", "variant": "success"}}
+{"Badge": {"text": "Active", "variant": "success"}}
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `text` | `string` | Static display text |
-| `variant` | `string` | `info` (default), `success`, `warning`, `error` |
-| `dataSource` | `DataSourceBinding` | Bind with aggregates for dynamic values |
-
-Data-bound example:
+**Data source mode:**
 
 ```json
 {"Badge": {"variant": "info", "dataSource": {"source": "users", "aggregate": {"fn": "count"}, "map": {"text": "{{$value}} users"}}}}
 ```
 
-Use cases: Status indicators, KPI counters, summary stats.
+| Prop | Type | Description |
+|------|------|-------------|
+| `text` | `string` | Static display text |
+| `variant` | `string` | `success`, `warning`, `error`, or `info` (default) |
+| `dataSource` | `DataSourceBinding` | Bind to a data source |
+
+Display priority: `mappedProps.text` > `aggregatedValue` > static `text`.
+
+Map templates support `{{$value}}` for single aggregates and `{{$key}}` for compound aggregates:
+
+```json
+{"Badge": {"variant": "success", "dataSource": {"source": "runs", "aggregates": {"$count": {"fn": "count", "where": {"field": "status", "op": "eq", "value": "pass"}}}, "map": {"text": "✓ {{$count}}"}}}}
+```
 
 ### Image
 
-Displays an image. URLs referencing `openclaw-canvas://` paths are rewritten to the canvas file server.
+Displays an image. Supports `openclaw-canvas://` URLs for canvas-relative paths.
 
 ```json
-{"Image": {"src": "https://example.com/logo.png", "alt": "Logo"}}
+{"Image": {"src": "openclaw-canvas://chart.png", "alt": "Sales chart"}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `src` | `string` | Image URL (http/https or canvas-relative path) |
-| `alt` | `string` | Alt text |
+| `src` | `string` | Image URL (supports `openclaw-canvas://` for canvas file references) |
+| `alt` | `string` | Alt text for accessibility |
 
 ### ProgressBar
 
-Horizontal progress bar with optional label. Value is clamped 0–100.
+Static progress bar. Commonly used inside Repeat templates for dynamic per-row rendering.
 
 ```json
-{"ProgressBar": {"label": "Upload: 75%", "value": 75}}
+{"ProgressBar": {"label": "Upload progress", "value": 75}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `value` | `number` | Progress percentage (0–100) |
+| `value` | `number` | Progress percentage (clamped 0–100) |
 | `label` | `string` | Optional label above the bar |
 
-Use cases: Token usage bars, completion tracking, health indicators. Commonly used inside Repeat templates.
+Inside a Repeat template with transforms:
 
-## Data Components
+```json
+{"Repeat": {"dataSource": {"source": "scores"}, "transforms": {"percentOfMax": {"fn": "percentOfMax"}}, "template": {"ProgressBar": {"label": "{{name}}: {{score}}", "value": "{{score | percentOfMax}}"}}}}
+```
 
 ### Table
 
-Tabular data display. Two modes: static (headers + rows) or data-source-bound.
+Displays tabular data with optional sorting. Scrolls horizontally when content exceeds viewport width.
 
-**Static:**
+**Static mode:**
 
 ```json
-{"Table": {"headers": ["Name", "Status"], "rows": [["Alice", "Active"], ["Bob", "Idle"]]}}
+{"Table": {"headers": ["Name", "Role"], "rows": [["Alice", "Admin"], ["Bob", "Viewer"]]}}
 ```
 
-**Data source:**
+**Data source mode:**
 
 ```json
 {"Table": {"dataSource": {"source": "users", "columns": ["name", "role", "email"]}, "sortable": true}}
@@ -154,136 +204,125 @@ Tabular data display. Two modes: static (headers + rows) or data-source-bound.
 | Prop | Type | Description |
 |------|------|-------------|
 | `headers` | `string[]` | Static column headers |
-| `rows` | `unknown[][]` | Static row data (array of arrays) |
-| `dataSource` | `DataSourceBinding` | Bind to filtered data source |
+| `rows` | `unknown[][]` | Static row data |
+| `dataSource` | `DataSourceBinding` | Bind to a data source |
 | `sortable` | `boolean` | Enable click-to-sort on column headers |
 
-Sorting cycles: unsorted → ascending (⬆) → descending (⬇) → unsorted.
+When using `dataSource`, if `columns` is omitted, all keys from the first row are used as headers. When all rows are filtered out, the table shows column headers with an empty body instead of disappearing.
 
-Use cases: Agent session lists, cron job tables, CI run history.
+**Sorting:** When `sortable` is `true`, clicking a column header cycles through: unsorted → ascending (⬆) → descending (⬇) → unsorted. Only one column can be sorted at a time. Sorting operates on raw data values, not display-formatted strings.
 
 ### Repeat
 
-Iterates over data source rows and renders a template component per row. Supports sorting and transforms.
+Data-driven iteration component. Renders a template component for each row in a filtered data source.
 
 ```json
-{"Repeat": {"dataSource": {"source": "agents"}, "template": {"ProgressBar": {"label": "{{name}} — {{tokens}}", "value": "{{usage_pct}}"}}, "emptyText": "No data", "sortable": true, "sortField": "usage_pct"}}
+{"Repeat": {"dataSource": {"source": "scores"}, "template": {"ProgressBar": {"label": "{{name}}", "value": "{{score | percentOfMax}}"}}, "sortable": true, "sortField": "score"}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `dataSource` | `DataSourceBinding` | Data source to iterate |
+| `dataSource` | `DataSourceBinding` | Data source to iterate over |
 | `template` | `Record<string, object>` | Component template with `{{field}}` placeholders |
-| `transforms` | `Record<string, { fn: string }>` | Named transforms (e.g., `percentOfMax`) |
-| `emptyText` | `string` | Shown when no rows match filters |
-| `sortable` | `boolean` | Show sort direction dropdown |
-| `sortField` | `string` | Field to sort by (required when sortable) |
+| `transforms` | `Record<string, { fn: string, field?: string }>` | Named transform definitions |
+| `emptyText` | `string` | Text shown when no rows match |
+| `sortable` | `boolean` | Enable a sort direction dropdown above repeated content |
+| `sortField` | `string` | Field name to sort by (required when `sortable` is `true`) |
 
-Supported template components: `ProgressBar`, `Text`, `Badge`.
+**Sorting:** When `sortable` is `true`, a dropdown appears above the repeated content with options: "Unsorted" (default), "Ascending", and "Descending". Sorting operates on raw data values.
 
-Use cases: Per-agent token bars, score leaderboards, dynamic lists.
+Repeated items are rendered with a 12px vertical gap between them.
 
-## Container Components
+---
 
-### Accordion
+## Input Components
 
-Collapsible panel group. Each panel has a title header and a child component that shows/hides on click.
+### Button
+
+Clickable button. Sends an `a2ui.buttonClick` WebSocket message with the component ID when clicked.
 
 ```json
-{"Accordion": {"panels": [{"title": "Section A", "child": "section-a-content"}, {"title": "Section B", "child": "section-b-content"}], "mode": "single", "expanded": [0]}}
+{"Button": {"label": "Submit"}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `panels` | `{ title: string, child: string }[]` | Panel definitions (child is a component ID) |
-| `mode` | `string` | `single` (default) — one open at a time; `multi` — multiple can be open |
-| `expanded` | `number[]` | Initially expanded panel indices |
+| `label` | `string` | Button text (also accepts `text`; falls back to `"Button"`) |
 
-Use cases: FAQ sections, grouped settings, collapsible detail views.
+### Checkbox
 
-### Tabs
-
-Tabbed content container. Each tab has a label and a child component. Supports top/bottom/left/right/hidden tab bar positions.
+Toggle checkbox with label. Sends an `a2ui.checkboxChange` WebSocket message with the component ID and checked state on change.
 
 ```json
-{"Tabs": {"tabs": [{"label": "Overview", "child": "overview-panel"}, {"label": "Details", "child": "details-panel"}], "position": "top", "active": 0}}
+{"Checkbox": {"label": "Enable notifications", "checked": true}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `tabs` | `{ label: string, child: string }[]` | Tab definitions (child is a component ID) |
-| `position` | `string` | Tab bar position: `top` (default), `bottom`, `left`, `right`, `hidden` |
-| `height` | `string` | Content area height (default `auto`); set a fixed value like `300px` for scrollable content |
-| `active` | `number` | Initially active tab index (default: 0) |
-
-Use cases: Multi-view dashboards, settings panels, categorized content.
-
-## Interactive Components
+| `label` | `string` | Label text displayed next to the checkbox |
+| `checked` | `boolean` | Initial checked state (default: `false`) |
 
 ### Select
 
-Single-selection dropdown. Emits `a2ui.selectChange` on change. Supports filter binding.
+Dropdown select. Can bind to a data source for reactive filtering.
 
 ```json
-{"Select": {"options": [{"label": "All", "value": ""}, {"label": "Active", "value": "active"}], "selected": "", "bind": {"source": "items", "field": "status", "nullValue": ""}}}
+{"Select": {"options": [{"label": "All", "value": ""}, {"label": "Active", "value": "active"}], "selected": "", "bind": {"source": "items", "field": "status", "op": "eq", "nullValue": ""}}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
 | `options` | `{ label: string, value: string }[]` | Dropdown options |
-| `selected` | `string` | Current value |
-| `bind` | `FilterBind` | Filter binding (see reactive.md) |
+| `selected` | `string` | Currently selected value |
+| `bind` | `FilterBind` | Optional filter binding |
+
+Sends `a2ui.selectChange` with `{ componentId, value }` on change.
 
 ### MultiSelect
 
-Multi-selection dropdown. Same component as Select but with array values. Use `op: "in"` for filter binding.
+Multi-selection dropdown. Alias for Select with `multi: true`. Renders a `<select multiple>` element.
 
 ```json
-{"MultiSelect": {"options": [{"label": "Admin", "value": "admin"}, {"label": "Editor", "value": "editor"}], "selected": ["admin", "editor"], "bind": {"source": ["users", "logs"], "field": "role", "op": "in", "nullValue": ["admin", "editor"]}}}
+{"MultiSelect": {"options": [{"label": "Pass", "value": "pass"}, {"label": "Fail", "value": "fail"}], "selected": ["pass", "fail"], "bind": {"source": "runs", "field": "status", "op": "in", "nullValue": ["pass", "fail"]}}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
 | `options` | `{ label: string, value: string }[]` | Dropdown options |
 | `selected` | `string[]` | Currently selected values |
-| `bind` | `FilterBind` | Filter binding (source can be string or string[]) |
+| `bind` | `FilterBind` | Optional filter binding (typically with `op: "in"`) |
 
-### Button
+Sends `a2ui.selectChange` with `{ componentId, values }` (array) on change.
 
-Clickable button. Emits `a2ui.buttonClick` with `componentId` on click.
+**Empty selection:** When a MultiSelect has no options selected (empty array), the filter is treated as inactive — all rows pass through. This ensures clearing a MultiSelect shows all data rather than hiding everything.
 
-```json
-{"Button": {"label": "Refresh"}}
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `label` | `string` | Button text |
-
-### Checkbox
-
-Toggle checkbox. Emits `a2ui.checkboxChange` with `componentId` and `checked` state.
+The `bind.source` prop accepts an array to filter multiple data sources simultaneously:
 
 ```json
-{"Checkbox": {"label": "Show inactive", "checked": false}}
+{"bind": {"source": ["runs", "health"], "field": "repo", "op": "in", "nullValue": ["repo1", "repo2"]}}
 ```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `label` | `string` | Checkbox label |
-| `checked` | `boolean` | Current state |
 
 ### Slider
 
-Range input. Emits `a2ui.sliderChange` with `componentId` and numeric `value`.
+Range slider input. Sends an `a2ui.sliderChange` WebSocket message with the component ID and value on change.
 
 ```json
-{"Slider": {"label": "Threshold", "min": 0, "max": 100, "value": 50}}
+{"Slider": {"label": "Volume", "min": 0, "max": 100, "value": 50}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `label` | `string` | Optional label |
-| `min` | `number` | Minimum value (default: 0) |
-| `max` | `number` | Maximum value (default: 100) |
-| `value` | `number` | Current value |
+| `label` | `string` | Optional label above the slider |
+| `min` | `number` | Minimum value (default: `0`) |
+| `max` | `number` | Maximum value (default: `100`) |
+| `value` | `number` | Current value (default: `0`) |
+
+---
+
+## Nesting
+
+All container and layout components render children via `A2UINode`, which recursively resolves any component type from the surface's component map. Containers can be nested freely — a Column can contain Rows, which can contain Columns, Tabs, Accordions, etc.
+
+## Data Source Binding
+
+Components that support `dataSource` can bind to reactive data pushed via `dataSourcePush` or `dataModelUpdate`. See [a2ui-reactive.md](a2ui-reactive.md) for the full data binding guide, including filter operations, aggregates, transforms, and incremental merges.
