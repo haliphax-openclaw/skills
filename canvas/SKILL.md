@@ -200,8 +200,6 @@ For the full list of available A2UI components, their JSONL schemas, and use cas
 
 - [references/components.md](references/components.md) — Full component reference (layout, containers, display, inputs)
 - [references/reactive.md](references/reactive.md) — Data sources, filtering, aggregates, and Repeat templates
-- [references/deep-linking.md](references/deep-linking.md) — `openclaw://` URL scheme for triggering agent runs from canvas content
-
 ### Component summary
 
 | Category | Components |
@@ -216,4 +214,7 @@ For the full list of available A2UI components, their JSONL schemas, and use cas
 - **Sorting** — Table and Repeat support optional `sortable` prop. Tables sort by clicking column headers (⬆/⬇); Repeat includes a sort direction dropdown.
 - **Filtering** — Select and MultiSelect bind to data sources for reactive filtering. Clearing a MultiSelect shows all data (empty selection = no filter).
 - **Reactive props** — Accordion `expanded` and Tabs `active` props react to surface updates, allowing agents to programmatically toggle panels or switch tabs.
-- **Deep linking** — HTML content can include `openclaw://` links that trigger agent runs via a confirmation dialog.
+
+## Deep Linking
+
+HTML content rendered in the canvas can include `openclaw://` links that trigger agent runs via a confirmation dialog. For the full URL format, parameters, and security details, see [references/deep-linking.md](references/deep-linking.md).
