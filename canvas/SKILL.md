@@ -217,4 +217,4 @@ For the full list of available A2UI components, their JSONL schemas, and use cas
 
 ## Deep Linking
 
-HTML content rendered in the canvas can include `openclaw://` links that trigger agent runs via a confirmation dialog. For the full URL format, parameters, and security details, see [references/deep-linking.md](references/deep-linking.md).
+Both iframe content and A2UI components can include `openclaw://` links that trigger agent runs via a confirmation dialog. Similarly, `openclaw-canvas://` URLs provide session-relative content references (e.g., images) in both rendering modes. For the full URL format, parameters, and security details, see [references/deep-linking.md](references/deep-linking.md).
