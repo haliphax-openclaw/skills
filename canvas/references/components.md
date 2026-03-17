@@ -183,6 +183,41 @@ Supported template components: `ProgressBar`, `Text`, `Badge`.
 
 Use cases: Per-agent token bars, score leaderboards, dynamic lists.
 
+## Container Components
+
+### Accordion
+
+Collapsible panel group. Each panel has a title header and a child component that shows/hides on click.
+
+```json
+{"Accordion": {"panels": [{"title": "Section A", "child": "section-a-content"}, {"title": "Section B", "child": "section-b-content"}], "mode": "single", "expanded": [0]}}
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `panels` | `{ title: string, child: string }[]` | Panel definitions (child is a component ID) |
+| `mode` | `string` | `single` (default) — one open at a time; `multi` — multiple can be open |
+| `expanded` | `number[]` | Initially expanded panel indices |
+
+Use cases: FAQ sections, grouped settings, collapsible detail views.
+
+### Tabs
+
+Tabbed content container. Each tab has a label and a child component. Supports top/bottom/left/right/hidden tab bar positions.
+
+```json
+{"Tabs": {"tabs": [{"label": "Overview", "child": "overview-panel"}, {"label": "Details", "child": "details-panel"}], "position": "top", "active": 0}}
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `tabs` | `{ label: string, child: string }[]` | Tab definitions (child is a component ID) |
+| `position` | `string` | Tab bar position: `top` (default), `bottom`, `left`, `right`, `hidden` |
+| `height` | `string` | Content area height (default `auto`); set a fixed value like `300px` for scrollable content |
+| `active` | `number` | Initially active tab index (default: 0) |
+
+Use cases: Multi-view dashboards, settings panels, categorized content.
+
 ## Interactive Components
 
 ### Select

@@ -49,13 +49,14 @@ The server maps agent IDs to workspace canvas directories and serves files at `/
 
 ### File organization
 
-- **Long-lived JSONL files** — Store in `canvas/` root for dashboards and surfaces you want to persist and re-push across sessions
+- **Long-lived JSONL files** — Store in `canvas/jsonl/` for dashboards and surfaces you want to persist and re-push across sessions
 - **Temporary JSONL files** — Store in `canvas/tmp/` for short-lived session work, experiments, and one-off surfaces
 
 ```
 ~/.openclaw/workspaces/<agent-id>/canvas/
-├── dashboard.jsonl          # persistent dashboard definition
 ├── index.html               # static HTML served via iframe
+├── jsonl/
+│   └── dashboard.jsonl      # persistent dashboard definition
 ├── tmp/
 │   ├── debug-surface.jsonl  # temporary experiment
 │   └── test-layout.jsonl    # one-off layout test
