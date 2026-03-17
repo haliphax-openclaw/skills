@@ -94,14 +94,32 @@ openclaw nodes invoke --node "Canvas Web Server" --command "canvas.a2ui.pushJSON
 
 | Command | Description |
 |---------|-------------|
-| `canvas.present` | Show the canvas panel |
+| `canvas.present` | Show the canvas panel. Accepts an optional `target` or `url` param — if it's an http/https/data URL, the canvas navigates to that external URL directly. |
 | `canvas.hide` | Hide the canvas panel |
-| `canvas.navigate` | Navigate to a path or URL |
-| `canvas.eval` | Execute JavaScript in the canvas |
-| `canvas.snapshot` | Capture a screenshot |
+| `canvas.navigate` | Navigate to a path, URL, or `openclaw-canvas://` URI (see below) |
+| `canvas.eval` | Execute JavaScript in the canvas (pass code via `javaScript` param) |
+| `canvas.snapshot` | Capture a screenshot (returns `{ format, base64 }`) |
 | `canvas.a2ui.push` | Push A2UI JSONL (alias for pushJSONL) |
 | `canvas.a2ui.pushJSONL` | Push A2UI JSONL payload |
 | `canvas.a2ui.reset` | Clear all A2UI surfaces (pass `session` to clear one session) |
+
+### Navigation URL schemes
+
+`canvas.navigate` supports three URL types:
+
+- **Relative path** — navigates within the current session's canvas directory (e.g., `index.html`)
+- **External URL** (`http://`, `https://`, `data:`) — loads the URL in the canvas iframe directly. Deep link and snapshot scripts are injected automatically into `data:` URLs.
+- **`openclaw-canvas://` URI** — session-scoped navigation. Format: `openclaw-canvas://<session>/<path>`. The session is extracted from the URI and the canvas switches to that session's file.
+
+```bash
+# Navigate to another agent's canvas file
+openclaw nodes invoke --node "Canvas Web Server" --command "canvas.navigate" \
+  --params '{"url":"openclaw-canvas://developer/dashboard.html"}'
+
+# Navigate to an external URL
+openclaw nodes invoke --node "Canvas Web Server" --command "canvas.navigate" \
+  --params '{"url":"https://example.com/report.html"}'
+```
 
 ## Switching Between Iframe and A2UI
 
@@ -121,40 +139,40 @@ openclaw nodes invoke --node "Canvas Web Server" --command "canvas.a2ui.reset" \
 
 ## Querying State from SQLite
 
+> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
+
 A2UI surface state is persisted in a SQLite cache at:
 
 ```
 ~/.openclaw-canvas/a2ui-cache.db
-
-> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
 ```
 
 Table: `a2ui_surfaces`
 
 | Column | Type | Description |
 |--------|------|-------------|
+| `session` | TEXT (PK) | Session name (matches agent ID) |
 | `surfaceId` | TEXT (PK) | Surface identifier |
 | `components` | TEXT (JSON) | Component map `{ id: component }` |
 | `root` | TEXT | Root component ID |
 | `dataModel` | TEXT (JSON) | Data model including `$sources` |
 
+The primary key is the composite `(session, surfaceId)`.
+
 Query examples:
 
 ```bash
-# List all surfaces
-sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT surfaceId, root FROM a2ui_surfaces"
+# List all surfaces across all sessions
+sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT session, surfaceId, root FROM a2ui_surfaces"
 
-> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
+# List surfaces for a specific agent session
+sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT surfaceId, root FROM a2ui_surfaces WHERE session='<agent-id>'"
 
 # Dump a surface's components
-sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT components FROM a2ui_surfaces WHERE surfaceId='main'" | jq .
-
-> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
+sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT components FROM a2ui_surfaces WHERE session='<agent-id>' AND surfaceId='main'" | jq .
 
 # Check data sources
-sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT json_extract(dataModel, '$.\$sources') FROM a2ui_surfaces WHERE surfaceId='main'" | jq .
-
-> **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
+sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT json_extract(dataModel, '$.\$sources') FROM a2ui_surfaces WHERE session='<agent-id>' AND surfaceId='main'" | jq .
 ```
 
 ## JSONL Command Reference
