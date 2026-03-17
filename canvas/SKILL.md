@@ -212,7 +212,7 @@ For the full list of available A2UI components, their JSONL schemas, and use cas
 ### Key features
 
 - **Sorting** — Table and Repeat support optional `sortable` prop. Tables sort by clicking column headers (⬆/⬇); Repeat includes a sort direction dropdown.
-- **Filtering** — Select and MultiSelect bind to data sources for reactive filtering. Clearing a MultiSelect shows all data (empty selection = no filter).
+- **Filtering** — Select, MultiSelect, Checkbox, and Slider bind to data sources for reactive filtering. Select/MultiSelect filter by value; Checkbox filters on boolean fields; Slider filters with `gte` on numeric fields. Clearing a MultiSelect shows all data (empty selection = no filter).
 - **Reactive props** — Accordion `expanded` and Tabs `active` props react to surface updates, allowing agents to programmatically toggle panels or switch tabs.
 
 ## Deep Linking
