@@ -52,7 +52,7 @@ After this merge, the `users` source contains rows for ids 1 (updated), 2 (uncha
 
 ## Filtering
 
-Filters are driven by interactive components (Select, MultiSelect) via the `bind` property. When a user changes a selection, the bound filter is applied to one or more data sources, and all components reading from those sources update reactively.
+Filters are driven by interactive components (Select, MultiSelect, Checkbox, Slider) via the `bind` property. When a user changes a selection or value, the bound filter is applied to one or more data sources, and all components reading from those sources update reactively.
 
 ### FilterBind schema
 
