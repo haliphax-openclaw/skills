@@ -252,16 +252,23 @@ Clickable button. Sends an `a2ui.buttonClick` WebSocket message with the compone
 
 ### Checkbox
 
-Toggle checkbox with label. Sends an `a2ui.checkboxChange` WebSocket message with the component ID and checked state on change.
+Toggle checkbox with label. Sends an `a2ui.checkboxChange` WebSocket message with the component ID and checked state on change. Supports optional `bind` for reactive data filtering on boolean fields.
 
 ```json
 {"Checkbox": {"label": "Enable notifications", "checked": true}}
+```
+
+**With reactive filter binding:**
+
+```json
+{"Checkbox": {"label": "Show active only", "checked": false, "bind": {"source": "team_members", "field": "active", "op": "eq", "nullValue": false}}}
 ```
 
 | Prop | Type | Description |
 |------|------|-------------|
 | `label` | `string` | Label text displayed next to the checkbox |
 | `checked` | `boolean` | Initial checked state (default: `false`) |
+| `bind` | `FilterBind` | Optional filter binding. Defaults: `op: "eq"`, `nullValue: false`. When checked, filters rows where `field === true`. When unchecked (`nullValue` match), the filter clears. |
 
 ### Select
 
@@ -305,10 +312,16 @@ The `bind.source` prop accepts an array to filter multiple data sources simultan
 
 ### Slider
 
-Range slider input. Sends an `a2ui.sliderChange` WebSocket message with the component ID and value on change.
+Range slider input. Sends an `a2ui.sliderChange` WebSocket message with the component ID and value on change. Supports optional `bind` for reactive data filtering on numeric fields.
 
 ```json
 {"Slider": {"label": "Volume", "min": 0, "max": 100, "value": 50}}
+```
+
+**With reactive filter binding:**
+
+```json
+{"Slider": {"label": "Min Score", "min": 0, "max": 100, "value": 0, "bind": {"source": "scores", "field": "points", "op": "gte"}}}
 ```
 
 | Prop | Type | Description |
@@ -317,6 +330,7 @@ Range slider input. Sends an `a2ui.sliderChange` WebSocket message with the comp
 | `min` | `number` | Minimum value (default: `0`) |
 | `max` | `number` | Maximum value (default: `100`) |
 | `value` | `number` | Current value (default: `0`) |
+| `bind` | `FilterBind` | Optional filter binding. Defaults: `op: "gte"`, `nullValue: min`. Filters rows where `field >= slider value`. When the slider is at `min`, the filter clears (nullValue match). |
 
 ---
 
