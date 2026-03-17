@@ -66,17 +66,14 @@ The server maps agent IDs to workspace canvas directories and serves files at `/
 
 ## Pushing A2UI Surfaces
 
-Use `openclaw nodes invoke` to push JSONL content to your canvas session. The `session` parameter is required to scope the push to your canvas URL.
-
-> **Note:** Always use `openclaw nodes invoke` with an inline `payload` parameter rather than the built-in `canvas` tool with `jsonlPath`. The built-in tool's file path validation restricts access to the OpenClaw state directory and will reject paths in agent workspace directories.
+Use the `canvas-web` MCP tools to push JSONL content to your canvas session. The `session` parameter scopes the push to your canvas URL.
 
 ```bash
-# Build the payload and push
-PAYLOAD=$(cat canvas/dashboard.jsonl | jq -Rs '.')
-openclaw nodes invoke \
-  --node "Canvas Web Server" \
-  --command "canvas.a2ui.pushJSONL" \
-  --params "{\"session\":\"<agent-id>\",\"payload\":$PAYLOAD}"
+# Push from a JSONL file
+mcporter call canvas-web.canvas_push session=<agent-id> payload="$(cat canvas/dashboard.jsonl)"
+
+# Or with inline content
+mcporter call canvas-web.canvas_push session=<agent-id> payload='{"surfaceUpdate":{"surfaceId":"main","components":[...]}}'
 ```
 
 Without `session`, the push defaults to `main` and renders on the main agent's canvas.
@@ -86,28 +83,27 @@ Without `session`, the push defaults to `main` and renders on the main agent's c
 Push only the components that changed — the server merges by component ID:
 
 ```bash
-echo '{"surfaceUpdate":{"surfaceId":"main","components":[{"id":"my-badge","component":{"Badge":{"text":"Updated","variant":"success"}}}]}}' > /tmp/update.jsonl
-PAYLOAD=$(cat /tmp/update.jsonl | jq -Rs '.')
-openclaw nodes invoke --node "Canvas Web Server" --command "canvas.a2ui.pushJSONL" \
-  --params "{\"session\":\"<agent-id>\",\"payload\":$PAYLOAD}"
+mcporter call canvas-web.canvas_push session=<agent-id> \
+  payload='{"surfaceUpdate":{"surfaceId":"main","components":[{"id":"my-badge","component":{"Badge":{"text":"Updated","variant":"success"}}}]}}'
 ```
 
 ### Other canvas commands
 
-| Command | Description |
-|---------|-------------|
-| `canvas.present` | Show the canvas panel. Accepts an optional `target` or `url` param — if it's an http/https/data URL, the canvas navigates to that external URL directly. |
-| `canvas.hide` | Hide the canvas panel |
-| `canvas.navigate` | Navigate to a path, URL, or `openclaw-canvas://` URI (see below) |
-| `canvas.eval` | Execute JavaScript in the canvas (pass code via `javaScript` param) |
-| `canvas.snapshot` | Capture a screenshot (returns `{ format, base64 }`) |
-| `canvas.a2ui.push` | Push A2UI JSONL (alias for pushJSONL) |
-| `canvas.a2ui.pushJSONL` | Push A2UI JSONL payload |
-| `canvas.a2ui.reset` | Clear all A2UI surfaces (pass `session` to clear one session) |
+| MCP Tool | Description |
+|----------|-------------|
+| `canvas_push` | Push A2UI JSONL payload |
+| `canvas_reset` | Clear all A2UI surfaces for a session |
+| `canvas_show` | Show the canvas panel. Accepts an optional `target` param for external URL navigation. |
+| `canvas_hide` | Hide the canvas panel |
+| `canvas_navigate` | Navigate to a path, URL, or `openclaw-canvas://` URI (see below) |
+| `canvas_eval` | Execute JavaScript in the canvas (pass code via `javaScript` param) |
+| `canvas_snapshot` | Capture a screenshot (returns `{ format, base64 }`) |
+
+All tools accept an optional `session` parameter.
 
 ### Navigation URL schemes
 
-`canvas.navigate` supports three URL types:
+`canvas_navigate` supports three URL types:
 
 - **Relative path** — navigates within the current session's canvas directory (e.g., `index.html`)
 - **External URL** (`http://`, `https://`, `data:`) — loads the URL in the canvas iframe directly. Deep link and snapshot scripts are injected automatically into `data:` URLs.
@@ -115,12 +111,10 @@ openclaw nodes invoke --node "Canvas Web Server" --command "canvas.a2ui.pushJSON
 
 ```bash
 # Navigate to another agent's canvas file
-openclaw nodes invoke --node "Canvas Web Server" --command "canvas.navigate" \
-  --params '{"url":"openclaw-canvas://developer/dashboard.html"}'
+mcporter call canvas-web.canvas_navigate url="openclaw-canvas://developer/dashboard.html"
 
 # Navigate to an external URL
-openclaw nodes invoke --node "Canvas Web Server" --command "canvas.navigate" \
-  --params '{"url":"https://example.com/report.html"}'
+mcporter call canvas-web.canvas_navigate url="https://example.com/report.html"
 ```
 
 ## Switching Between Iframe and A2UI
@@ -135,8 +129,7 @@ To force iframe mode, navigate to a specific file. To force A2UI mode, push a su
 To clear A2UI and return to iframe:
 
 ```bash
-openclaw nodes invoke --node "Canvas Web Server" --command "canvas.a2ui.reset" \
-  --params "{\"session\":\"<agent-id>\"}"
+mcporter call canvas-web.canvas_reset session=<agent-id>
 ```
 
 ## Querying State from SQLite
