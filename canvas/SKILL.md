@@ -12,6 +12,7 @@ The Canvas web server ([haliphax-openclaw/openclaw-canvas-web](https://github.co
 
 ## Requirements
 
+- `jq` binary available on the system (for encoding JSONL payloads)
 - `sqlite3` binary available on the system (for querying A2UI surface state)
 - OpenClaw Canvas web server running and connected to the gateway (appears as "Canvas Web Server" in `openclaw nodes status`)
 
