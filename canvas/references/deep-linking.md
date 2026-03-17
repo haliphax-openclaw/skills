@@ -30,7 +30,7 @@ openclaw://my-container/agent?message=Run+the+tests
 | `message` | Yes | The message to send to the agent |
 | `agentId` | No | Target agent ID (uses default if omitted) |
 | `model` | No | Model override (e.g. `claude-sonnet-4-20250514`) |
-| `sessionKey` | No | Target session key (auto-resolved if omitted). Requires `hooks.allowRequestSessionKey=true` in gateway config. |
+| `sessionKey` | No | Target session key (auto-resolved if omitted). Requires gateway configuration; see the [project deep-linking docs](https://github.com/haliphax-openclaw/openclaw-canvas-web/blob/main/docs/deep-linking.md#gateway-configuration) for details. |
 | `thinking` | No | Thinking mode: `on`, `off`, or `stream` |
 | `deliver` | No | Delivery mode for the response |
 | `to` | No | Delivery target |
