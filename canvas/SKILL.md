@@ -10,6 +10,11 @@ The Canvas web server ([haliphax-openclaw/openclaw-canvas-web](https://github.co
 1. **Static files** (iframe mode) — HTML/CSS/JS served from the agent's workspace
 2. **A2UI surfaces** (component mode) — Declarative UI pushed via JSONL commands
 
+## Requirements
+
+- `sqlite3` binary available on the system (for querying A2UI surface state)
+- OpenClaw Canvas web server running and connected to the gateway (appears as "Canvas Web Server" in `openclaw nodes status`)
+
 ## Required Configuration
 
 Store the following in your `TOOLS.md` file:
