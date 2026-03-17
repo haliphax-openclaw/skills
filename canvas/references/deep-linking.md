@@ -30,7 +30,7 @@ openclaw://my-container/agent?message=Run+the+tests
 | `message` | Yes | The message to send to the agent |
 | `agentId` | No | Target agent ID (uses default if omitted) |
 | `model` | No | Model override (e.g. `claude-sonnet-4-20250514`) |
-| `sessionKey` | No | Target session key (auto-resolved if omitted) |
+| `sessionKey` | No | Target session key (auto-resolved if omitted). Requires `hooks.allowRequestSessionKey=true` in gateway config. |
 | `thinking` | No | Thinking mode: `on`, `off`, or `stream` |
 | `deliver` | No | Delivery mode for the response |
 | `to` | No | Delivery target |
@@ -111,6 +111,14 @@ The `/api/canvas-config` endpoint provides client-side configuration:
 - `agents` — List of available agent IDs for the confirmation dialog's agent selector
 - `allowedAgentIds` — Agent IDs permitted for deep link execution
 - `skipConfirmation` — Whether to bypass the confirmation dialog
+
+## A2UI Button Deep Links
+
+A2UI Button components support deep links via the `href` prop. Unlike iframe-based deep links, A2UI buttons POST directly to the `/api/agent` endpoint without showing a confirmation dialog. This is appropriate for trusted A2UI content where the agent controls the button labels and URLs.
+
+```json
+{"Button": {"label": "Refresh", "href": "openclaw://agent?message=Refresh+data&agentId=developer"}}
+```
 
 ## Security Considerations
 
