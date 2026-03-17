@@ -69,8 +69,8 @@ The server maps agent IDs to workspace canvas directories and serves files at `/
 Use the `canvas-web` MCP tools to push JSONL content to your canvas session. The `session` parameter scopes the push to your canvas URL.
 
 ```bash
-# Push from a JSONL file
-mcporter call canvas-web.canvas_push session=<agent-id> payload="$(cat canvas/dashboard.jsonl)"
+# Push from a JSONL file (recommended — avoids shell escaping issues)
+mcporter call canvas-web.canvas_push session=<agent-id> file=canvas/jsonl/dashboard.jsonl
 
 # Or with inline content
 mcporter call canvas-web.canvas_push session=<agent-id> payload='{"surfaceUpdate":{"surfaceId":"main","components":[...]}}'
