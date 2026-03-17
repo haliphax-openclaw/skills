@@ -68,6 +68,8 @@ The server maps agent IDs to workspace canvas directories and serves files at `/
 
 Use `openclaw nodes invoke` to push JSONL content to your canvas session. The `session` parameter is required to scope the push to your canvas URL.
 
+> **Note:** Always use `openclaw nodes invoke` with an inline `payload` parameter rather than the built-in `canvas` tool with `jsonlPath`. The built-in tool's file path validation restricts access to the OpenClaw state directory and will reject paths in agent workspace directories.
+
 ```bash
 # Build the payload and push
 PAYLOAD=$(cat canvas/dashboard.jsonl | jq -Rs '.')
