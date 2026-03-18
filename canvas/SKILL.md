@@ -64,28 +64,14 @@ The server maps agent IDs to workspace canvas directories and serves files at `/
 │   └── test-layout.jsonl    # one-off layout test
 ```
 
-## Pushing A2UI Surfaces
+## Pushing Content to the Canvas
 
-Use the `canvas-web` MCP tools to push JSONL content to your canvas session. The `session` parameter scopes the push to your canvas URL.
+Choose the right approach based on your task:
 
-```bash
-# Push from a JSONL file (recommended — avoids shell escaping issues)
-mcporter call canvas-web.canvas_push session=<agent-id> file=canvas/jsonl/dashboard.jsonl
+- **Updating data** (new rows, refreshed content, data-bound text): Read [references/data-sources.md](references/data-sources.md)
+- **Updating components** (layout changes, new components, filter options, new surfaces): Read [references/surface-updates.md](references/surface-updates.md)
 
-# Or with inline content
-mcporter call canvas-web.canvas_push session=<agent-id> payload='{"surfaceUpdate":{"surfaceId":"main","components":[...]}}'
-```
-
-Without `session`, the push defaults to `main` and renders on the main agent's canvas.
-
-### Incremental updates
-
-Push only the components that changed — the server merges by component ID:
-
-```bash
-mcporter call canvas-web.canvas_push session=<agent-id> \
-  payload='{"surfaceUpdate":{"surfaceId":"main","components":[{"id":"my-badge","component":{"Badge":{"text":"Updated","variant":"success"}}}]}}'
-```
+For most dashboard refreshes, a `dataSourcePush` is all you need — no component changes required.
 
 ### Other canvas commands
 
@@ -170,24 +156,12 @@ sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT components FROM a2ui_surfaces W
 sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT json_extract(dataModel, '$.\$sources') FROM a2ui_surfaces WHERE session='<agent-id>' AND surfaceId='main'" | jq .
 ```
 
-## JSONL Command Reference
+## JSONL Commands
 
-Every A2UI push is a newline-delimited sequence of JSON commands:
+A2UI content is pushed as newline-delimited JSON commands. For full details and examples:
 
-| Command | Purpose |
-|---------|---------|
-| `surfaceUpdate` | Create or update components on a surface |
-| `beginRendering` | Set the root component and activate A2UI rendering |
-| `dataModelUpdate` | Update the data model (use `$sources` key for data sources) |
-| `dataSourcePush` | Shorthand for pushing data sources without `$sources` nesting |
-| `deleteSurface` | Remove a surface |
-
-### Minimal surface
-
-```jsonl
-{"surfaceUpdate":{"surfaceId":"main","components":[{"id":"root","component":{"Column":{"children":["hello"]}}},{"id":"hello","component":{"Text":{"text":"Hello from Canvas","usageHint":"h1"}}}]}}
-{"beginRendering":{"surfaceId":"main","root":"root"}}
-```
+- **Component/surface commands** (`surfaceUpdate`, `beginRendering`, `deleteSurface`): See [references/surface-updates.md](references/surface-updates.md)
+- **Data commands** (`dataSourcePush`, `dataModelUpdate`): See [references/data-sources.md](references/data-sources.md)
 
 ## Components and Reactive Data Binding
 
