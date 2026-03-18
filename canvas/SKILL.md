@@ -49,10 +49,10 @@ The server maps agent IDs to workspace canvas directories and serves files at `/
 
 ### File organization
 
-- **Long-lived JSONL files** — Store in `canvas/jsonl/` for dashboards and surfaces you want to persist and re-push across sessions
+- **Long-lived JSONL files** — Store in `canvas/jsonl/` for dashboards and surfaces you want to persist and re-push across sessions. Files here are **auto-pushed** — the server watches this directory and automatically pushes A2UI commands when `.jsonl` files are created or modified. No need to call mcporter.
 - **Temporary JSONL files** — Store in `canvas/tmp/` for short-lived session work, experiments, and one-off surfaces
 
-> **Note:** The `jsonl/` and `tmp/` subdirectories are ignored by the file watcher by default. Files placed there won't trigger iframe reloads. This is configurable via the `OPENCLAW_CANVAS_IGNORE_DIRS` environment variable.
+> **Note:** The `jsonl/` and `tmp/` subdirectories are ignored by the iframe file watcher by default (no iframe reloads). The `jsonl/` directory has its own dedicated watcher that auto-pushes A2UI content instead.
 
 ```
 ~/.openclaw/workspaces/<agent-id>/canvas/

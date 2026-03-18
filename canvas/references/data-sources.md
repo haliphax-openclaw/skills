@@ -2,6 +2,19 @@
 
 Use `dataSourcePush` or `dataModelUpdate` to update data that powers reactive components (Tables, Badges, Text, ProgressBar, Repeat, filtered Selects). This is for data changes — no component structure changes needed.
 
+## Auto-push via file watcher
+
+The simplest way to push data is to write a `.jsonl` file to your `canvas/jsonl/` directory. The server watches this directory and automatically pushes A2UI commands when files are created or modified — no mcporter call needed.
+
+```bash
+# Just write the file — the server handles the rest
+echo '{"dataSourcePush":{"surfaceId":"main","sources":{"users":{"fields":["name"],"rows":[{"name":"Alice"}]}}}}' > ~/.openclaw/workspaces/<agent-id>/canvas/jsonl/users-data.jsonl
+```
+
+Multiple `.jsonl` files can target the same `surfaceId` (e.g., `dashboard-layout.jsonl` for components, `dashboard-data.jsonl` for data). They merge in the SQLite cache.
+
+The watcher debounces writes (300ms) to avoid pushing partial file content.
+
 ## When to use
 - Refreshing data displayed in Tables, Repeat, Badges, or data-bound Text/ProgressBar components
 - Pushing new rows to existing data sources
