@@ -7,8 +7,8 @@ The canvas web server supports `openclaw://` deep links that allow rendered canv
 1. An agent pushes HTML content to the canvas (via file-served HTML or `data:` URLs)
 2. The server injects a script into served HTML that intercepts clicks on `openclaw://` links
 3. The SPA surfaces a confirmation dialog showing the message and options
-4. On confirmation, the request is proxied to the gateway's hooks endpoint
-5. The gateway triggers an agent run with the specified message
+4. On confirmation, the request is proxied to the gateway's `/tools/invoke` endpoint
+5. The gateway spawns an isolated subagent session via `sessions_spawn`
 
 ## URL Format
 
@@ -30,7 +30,7 @@ openclaw://my-container/agent?message=Run+the+tests
 | `message` | Yes | The message to send to the agent |
 | `agentId` | No | Target agent ID (uses default if omitted) |
 | `model` | No | Model override (e.g. `claude-sonnet-4-20250514`) |
-| `sessionKey` | No | Target session key (auto-resolved if omitted). Requires gateway configuration; see the [project deep-linking docs](https://github.com/haliphax-openclaw/openclaw-canvas-web/blob/main/docs/deep-linking.md#gateway-configuration) for details. |
+| `sessionKey` | No | Parent session key for completion announcements. Defaults to `"devnull"` (suppresses announcements). Set to a real session key to receive completion events. |
 | `thinking` | No | Thinking mode: `on`, `off`, or `stream` |
 | `deliver` | No | Delivery mode for the response |
 | `to` | No | Delivery target |
@@ -88,13 +88,25 @@ When the user clicks "Fix this", the confirmation dialog appears, and on approva
 
 ## API Proxy
 
-Deep link execution is proxied through the canvas server's `/api/agent` endpoint, which forwards the request to the OpenClaw gateway's hooks endpoint. The proxy handles authentication and routing transparently.
+Deep link execution is proxied through the canvas server's `/api/agent` endpoint, which calls the gateway's `/tools/invoke` endpoint to spawn an isolated subagent session via `sessions_spawn`. This avoids the hooks security boundary, which injects warning text into the agent's prompt.
 
 ```
 Client → POST /api/agent { message, agentId, ... }
-       → Gateway hooks endpoint
-       → Agent run triggered
+       → Gateway /tools/invoke (sessions_spawn)
+       → Isolated subagent run triggered
 ```
+
+### Suppressing Completion Announcements
+
+By default, `sessions_spawn` auto-announces completion back to the parent session, which costs tokens. To suppress this, the proxy sets `sessionKey` to `"devnull"` by default — a nonexistent session that silently drops the announcement.
+
+To route the completion to a specific session instead (e.g., for monitoring), pass `sessionKey` in the deep link URL:
+
+```
+openclaw://agent?message=Refresh+data&agentId=developer&sessionKey=agent:developer:discord:channel:123
+```
+
+If `sessionKey` is omitted, it defaults to `"devnull"` (no announcement).
 
 ## Canvas Config Endpoint
 
