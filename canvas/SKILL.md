@@ -118,6 +118,62 @@ To clear A2UI and return to iframe:
 mcporter call canvas-web.canvas_reset session=<agent-id>
 ```
 
+## Theming
+
+Surfaces support DaisyUI theming via the `theme` property on `createSurface`. The value is a DaisyUI theme name string applied as `data-theme` on the renderer container.
+
+### Setting a theme
+
+Include `theme` in your `createSurface` JSONL command:
+
+```json
+{"createSurface": {"surfaceId": "main", "theme": "synthwave"}}
+```
+
+If omitted, the default theme is `dark`.
+
+### Available themes
+
+Any [DaisyUI theme](https://daisyui.com/docs/themes/) is valid. Common options:
+
+| Theme | Description |
+|-------|-------------|
+| `dark` | Default dark theme |
+| `light` | Light theme |
+| `cyberpunk` | Bright yellow/pink retro-futuristic |
+| `synthwave` | Dark purple/navy with neon accents |
+| `retro` | Warm vintage palette |
+| `dracula` | Dark with purple/pink highlights |
+| `business` | Professional dark theme |
+
+### Switching themes
+
+Push a new `createSurface` with a different `theme` value. The theme updates live without a page refresh:
+
+```json
+{"createSurface": {"surfaceId": "main", "theme": "cyberpunk"}}
+```
+
+### Persistence
+
+Theme and `catalogId` are persisted in the SQLite cache. Both survive server restarts and are included in surface replay on client reconnect.
+
+### Catalog ID
+
+Surfaces accept an optional `catalogId` URI identifying the component catalog in use. When omitted, the default is `https://haliphax-openclaw.github.io/a2ui/1.0/catalog/all`.
+
+```json
+{"createSurface": {"surfaceId": "main", "theme": "dark", "catalogId": "https://haliphax-openclaw.github.io/a2ui/1.0/catalog/basic"}}
+```
+
+Catalog namespace: `https://haliphax-openclaw.github.io/a2ui/1.0/`
+
+| URI | Description |
+|-----|-------------|
+| `.../catalog/all` | All built-in and 3rd party components (default) |
+| `.../catalog/basic` | A2UI basic components only |
+| `.../catalog/extended` | All built-in components |
+
 ## Querying State from SQLite
 
 > **Important:** The OpenClaw gateway must have access to the SQLite database file. If the canvas web server and gateway run on separate hosts, ensure the database is accessible via a shared filesystem (NFS mount, Docker volume, bind mount, etc.).
@@ -137,6 +193,8 @@ Table: `a2ui_surfaces`
 | `components` | TEXT (JSON) | Component map `{ id: component }` |
 | `root` | TEXT | Root component ID |
 | `dataModel` | TEXT (JSON) | Data model including `$sources` |
+| `theme` | TEXT | DaisyUI theme name |
+| `catalogId` | TEXT | Catalog URI |
 
 The primary key is the composite `(session, surfaceId)`.
 
