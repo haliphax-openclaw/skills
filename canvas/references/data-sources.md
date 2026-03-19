@@ -1,6 +1,6 @@
 # Pushing Data Source Updates
 
-Use `dataSourcePush` or `dataModelUpdate` to update data that powers reactive components (Tables, Badges, Text, ProgressBar, Repeat, filtered Selects). This is for data changes — no component structure changes needed.
+Use `dataSourcePush` or `updateDataModel` to update data that powers reactive components (Tables, Badges, Text, ProgressBar, Repeat, filtered Selects). This is for data changes — no component structure changes needed.
 
 ## Auto-push via file watcher
 
@@ -37,12 +37,12 @@ Multiple sources can be pushed in a single command:
 {"dataSourcePush":{"surfaceId":"main","sources":{"users":{...},"tasks":{...},"content":{...}}}}
 ```
 
-### `dataModelUpdate`
+### `updateDataModel`
 
 Lower-level command. Data sources go under the `$sources` key. Supports `merge: true` for incremental updates by primary key.
 
 ```jsonl
-{"dataModelUpdate":{"surfaceId":"main","data":{"$sources":{"users":{"fields":["id","name"],"rows":[{"id":"1","name":"Alice"}],"primaryKey":"id"}}}}}
+{"updateDataModel":{"surfaceId":"main","data":{"$sources":{"users":{"fields":["id","name"],"rows":[{"id":"1","name":"Alice"}],"primaryKey":"id"}}}}}
 ```
 
 #### Incremental merge
@@ -50,7 +50,7 @@ Lower-level command. Data sources go under the `$sources` key. Supports `merge: 
 When `merge: true` is set and the source has a `primaryKey`, existing rows are updated by key and new rows are appended:
 
 ```jsonl
-{"dataModelUpdate":{"surfaceId":"main","merge":true,"data":{"$sources":{"users":{"rows":[{"id":"1","name":"Alice Updated"},{"id":"3","name":"Charlie"}]}}}}}
+{"updateDataModel":{"surfaceId":"main","merge":true,"data":{"$sources":{"users":{"rows":[{"id":"1","name":"Alice Updated"},{"id":"3","name":"Charlie"}]}}}}}
 ```
 
 ## Pushing

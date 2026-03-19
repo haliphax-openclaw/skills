@@ -107,10 +107,10 @@ mcporter call canvas-web.canvas_navigate url="https://example.com/report.html"
 
 The canvas view auto-switches based on content:
 
-- **A2UI mode** activates when a surface has a `root` set (via `beginRendering`) and no static file subpath is in the URL
+- **A2UI mode** activates when a surface has a `root` set (via `createSurface`) and no static file subpath is in the URL
 - **Iframe mode** activates when navigating to a static file path (e.g., `/session/<agent-id>/index.html`)
 
-To force iframe mode, navigate to a specific file. To force A2UI mode, push a surface with `beginRendering`.
+To force iframe mode, navigate to a specific file. To force A2UI mode, push a surface with `createSurface`.
 
 To clear A2UI and return to iframe:
 
@@ -160,8 +160,8 @@ sqlite3 ~/.openclaw-canvas/a2ui-cache.db "SELECT json_extract(dataModel, '$.\$so
 
 A2UI content is pushed as newline-delimited JSON commands. For full details and examples:
 
-- **Component/surface commands** (`surfaceUpdate`, `beginRendering`, `deleteSurface`): See [references/surface-updates.md](references/surface-updates.md)
-- **Data commands** (`dataSourcePush`, `dataModelUpdate`): See [references/data-sources.md](references/data-sources.md)
+- **Component/surface commands** (`updateComponents`, `createSurface`, `deleteSurface`): See [references/surface-updates.md](references/surface-updates.md)
+- **Data commands** (`dataSourcePush`, `updateDataModel`): See [references/data-sources.md](references/data-sources.md)
 
 ## Components and Reactive Data Binding
 
