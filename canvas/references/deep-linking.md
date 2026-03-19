@@ -13,14 +13,11 @@ The canvas web server supports `openclaw://` deep links that allow rendered canv
 ## URL Format
 
 ```
-openclaw://agent?message=<text>&sessionKey=<key>&agentId=<id>&model=<model>&thinking=<mode>
+openclaw://_?message=<text>&sessionKey=<key>&agentId=<id>&model=<model>&thinking=<mode>
 ```
 
-The `agent` action is currently the only supported action. The authority position can be either `agent` directly or a container hostname:
-
 ```
-openclaw://agent?message=Run+the+tests
-openclaw://my-container/agent?message=Run+the+tests
+openclaw://_?message=Run+the+tests
 ```
 
 ### Parameters
@@ -75,11 +72,11 @@ An agent can build a dashboard with actionable links:
 <ul>
   <li>
     openclaw-tools-mcp-server — test workflow
-    <a href="openclaw://agent?message=Fix+the+failing+test+in+openclaw-tools-mcp-server">Fix this</a>
+    <a href="openclaw://_?message=Fix+the+failing+test+in+openclaw-tools-mcp-server">Fix this</a>
   </li>
   <li>
     skills — validate workflow
-    <a href="openclaw://agent?message=Fix+the+schema+validation+in+the+skills+repo">Fix this</a>
+    <a href="openclaw://_?message=Fix+the+schema+validation+in+the+skills+repo">Fix this</a>
   </li>
 </ul>
 ```
@@ -103,7 +100,7 @@ By default, `sessions_spawn` auto-announces completion back to the parent sessio
 To route the completion to a specific session instead (e.g., for monitoring), pass `sessionKey` in the deep link URL:
 
 ```
-openclaw://agent?message=Refresh+data&agentId=developer&sessionKey=agent:developer:discord:channel:123
+openclaw://_?message=Refresh+data&agentId=developer&sessionKey=agent:developer:discord:channel:123
 ```
 
 If `sessionKey` is omitted, it defaults to `"devnull"` (no announcement).
@@ -129,7 +126,7 @@ The `/api/canvas-config` endpoint provides client-side configuration:
 A2UI Button components support deep links via the `href` prop. Unlike iframe-based deep links, A2UI buttons POST directly to the `/api/agent` endpoint without showing a confirmation dialog. This is appropriate for trusted A2UI content where the agent controls the button labels and URLs.
 
 ```json
-{"Button": {"label": "Refresh", "href": "openclaw://agent?message=Refresh+data&agentId=developer"}}
+{"Button": {"label": "Refresh", "href": "openclaw://_?message=Refresh+data&agentId=developer"}}
 ```
 
 ## Security Considerations
