@@ -32,7 +32,7 @@ Ask your human for the canvas base URL if you don't have it. All canvas session 
 Each agent has a personal canvas session URL:
 
 ```
-<CANVAS_BASE_URL>/session/<agent-id>/
+<CANVAS_BASE_URL>/<agent-id>/
 ```
 
 The session name matches your agent ID. All A2UI pushes and static files are scoped to this session.
@@ -108,7 +108,7 @@ mcporter call canvas-web.canvas_navigate url="https://example.com/report.html"
 The canvas view auto-switches based on content:
 
 - **A2UI mode** activates when a surface has a `root` set (via `createSurface`) and no static file subpath is in the URL
-- **Iframe mode** activates when navigating to a static file path (e.g., `/session/<agent-id>/index.html`)
+- **Iframe mode** activates when navigating to a static file path (e.g., `/<agent-id>/index.html`)
 
 To force iframe mode, navigate to a specific file. To force A2UI mode, push a surface with `createSurface`.
 
@@ -162,6 +162,36 @@ A2UI content is pushed as newline-delimited JSON commands. For full details and 
 
 - **Component/surface commands** (`updateComponents`, `createSurface`, `deleteSurface`): See [references/surface-updates.md](references/surface-updates.md)
 - **Data commands** (`dataSourcePush`, `updateDataModel`): See [references/data-sources.md](references/data-sources.md)
+
+### Validation feedback
+
+`canvas_push` returns per-command validation results. Each command in the batch gets a result with `ok`, `command`, `index`, and `error` (on failure). Use this to detect and fix issues without guessing.
+
+Example response for a batch with one valid and one invalid command:
+
+```json
+{
+  "ok": true,
+  "results": [
+    { "ok": true, "command": "createSurface", "index": 0 },
+    { "ok": false, "command": "updateComponents", "index": 1, "error": "updateComponents: components must be an array" }
+  ],
+  "errors": [
+    { "ok": false, "command": "updateComponents", "index": 1, "error": "updateComponents: components must be an array" }
+  ]
+}
+```
+
+The `errors` array is a convenience filter — same entries as the failed results. If `errors` is empty, all commands succeeded.
+
+Common validation errors:
+- `createSurface: missing surfaceId`
+- `updateComponents: components must be an array`
+- `Unrecognized command`
+
+When errors are returned, fix the failing commands and re-push. The valid commands in the batch are still processed — only the invalid ones are skipped.
+
+> **Streaming interface:** Scripts and non-agent consumers can also connect directly to the canvas server's WebSocket and stream JSONL commands with per-command validation feedback in real-time. This is not available through agent tool calls, which use the batch interface described above.
 
 ## Components and Reactive Data Binding
 
