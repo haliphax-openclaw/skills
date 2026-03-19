@@ -196,7 +196,8 @@ Note: You may need to supply additional arguments to `mcporter` (such as `--conf
 - Keep task descriptions clear and actionable
 - Set reasonable cleanup="keep" for status tracking
 - Execute tasks in parallel whenever possible to save time
-- Poll every 5-10s for updates
+- Poll every 5-10s for updates (native subagents)
+- Use progressive backoff when monitoring ACP subagents doing complex work (e.g. 20s → 40s → 60s → 120s, capped at 2 minutes)
 - Edit status post in-place—never add new messages for updates
 - Steer proactively when you see common blockers
 - Always aggregate results at the end
