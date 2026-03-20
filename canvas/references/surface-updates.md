@@ -12,7 +12,7 @@ Use `updateComponents` to create or modify the component tree on an A2UI surface
 
 ### `updateComponents`
 
-Create or update components on a surface. Components are merged by ID — only include components you're changing. Uses the v0.9 flat component shape where the component type is a string and props are top-level siblings.
+Create or update components on a surface. Components are merged by ID — only include components you're changing. Each entry uses a flat shape: the component type is a string in `component`, and props are top-level siblings.
 
 ```jsonl
 {"updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["hello"]},{"id":"hello","component":"Text","text":"Hello from Canvas","variant":"h1"}]}}
