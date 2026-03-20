@@ -313,7 +313,7 @@ When using `dataSource`, if `columns` is omitted, all keys from the first row ar
 
 ### Repeat
 
-Data-driven iteration component. Renders a template component for each row in a filtered data source.
+Data-driven iteration component. Renders a template component for each row in a filtered data source. Use **`dataSource.source`** for the source key (same as other components), not `dataSource.name`.
 
 ```json
 {"Repeat": {"dataSource": {"source": "scores"}, "template": {"ProgressBar": {"label": "${name}", "value": "${score | percentOfMax}"}}, "sortable": true, "sortField": "score"}}
@@ -321,7 +321,7 @@ Data-driven iteration component. Renders a template component for each row in a 
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `dataSource` | `DataSourceBinding` | Data source to iterate over |
+| `dataSource` | `{ source: string, ... }` | Data source to iterate over — **`source`** required |
 | `template` | `Record<string, object>` | Component template with `${field}` placeholders |
 | `transforms` | `Record<string, { fn: string, field?: string }>` | Named transform definitions |
 | `emptyText` | `string` | Text shown when no rows match |
