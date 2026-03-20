@@ -213,7 +213,7 @@ When `format: "compact"` is set on an aggregate, large numbers are shortened:
 
 ## Repeat Component
 
-The Repeat component iterates over filtered data source rows and renders a template component for each row. Use **`dataSource.source`** (string) for the data source key — the same property as Table, Text, and Badge. Do **not** use `dataSource.name` (it is ignored by the renderer and rejected by validation).
+The Repeat component iterates over filtered data source rows and renders a template component for each row. Set **`dataSource.source`** (string) to the data source key — the same property as Table, Text, and Badge.
 
 ### Basic usage
 
