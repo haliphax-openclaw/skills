@@ -244,6 +244,39 @@ Inside a Repeat template with transforms:
 {"Repeat": {"dataSource": {"source": "scores"}, "transforms": {"percentOfMax": {"fn": "percentOfMax"}}, "template": {"ProgressBar": {"label": "{{name}}: {{score}}", "value": "{{score | percentOfMax}}"}}}}
 ```
 
+### AudioPlayer
+
+Embedded audio with custom play/pause, seek, and volume. `url` may be `http(s):` or `openclaw-canvas://`.
+
+```json
+{"AudioPlayer": {"url": "https://example.com/audio.mp3", "description": "Episode 1"}}
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `url` | `string` | Audio source URL |
+| `description` | `string` | Optional title or summary |
+| `autoplay` | `boolean` | Default `false` |
+| `loop` | `boolean` | Default `false` |
+| `muted` | `boolean` | Default `false` |
+
+### Video
+
+HTML5 video with native controls.
+
+```json
+{"Video": {"url": "https://example.com/clip.mp4", "poster": "https://example.com/poster.jpg", "controls": true}}
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `url` | `string` | Video source URL |
+| `poster` | `string` | Poster image before playback |
+| `controls` | `boolean` | Native controls (default `true`) |
+| `autoplay` | `boolean` | Default `false` |
+| `loop` | `boolean` | Default `false` |
+| `muted` | `boolean` | Default `false` |
+
 ### Table
 
 Displays tabular data with optional sorting. Scrolls horizontally when content exceeds viewport width.
