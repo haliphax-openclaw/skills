@@ -79,11 +79,11 @@ Components that support data binding update automatically when their bound data 
 
 | Component | Data binding support |
 |-----------|---------------------|
-| Text | `{{field}}` template interpolation against first filtered row, `{{$value}}`/`{{$key}}` for aggregates |
-| ProgressBar | `{{field}}` template interpolation in `label` and `value` props |
+| Text | `${field}` template interpolation against first filtered row, `${$value}`/`${$key}` for aggregates |
+| ProgressBar | `${field}` template interpolation in `label` and `value` props |
 | Badge | Aggregate display with `map` templates |
 | Table | Column display from data source rows |
-| Repeat | Template rendering per row with `{{field}}` placeholders |
+| Repeat | Template rendering per row with `${field}` placeholders |
 | Select/MultiSelect | Filter binding via `bind` prop |
 
 For full details on filtering, aggregates, and reactive binding, see [reactive.md](reactive.md).

@@ -267,6 +267,9 @@ For the full list of available A2UI components, their JSONL schemas, and use cas
 
 - [references/components.md](references/components.md) — Full component reference (layout, containers, display, inputs)
 - [references/reactive.md](references/reactive.md) — Data sources, filtering, aggregates, and Repeat templates
+
+**`formatString` in JSONL:** Use **`${expression}`** for interpolated strings on Text, ProgressBar, Badge `map`, Repeat templates, etc. (e.g. `${title}`, `${$value}`, `${score | percentOfMax}`). Do **not** use `{{...}}` there. The only common `{{...}}` placeholder is **`{{value}}`** inside optional **`emitTo`** URLs on inputs — that is a separate client-side substitution, not formatString. See [references/reactive.md](references/reactive.md#formatstring-interpolation).
+
 ### Component summary
 
 | Category | Components |

@@ -2,6 +2,12 @@
 
 The A2UI reactive layer lets agents push structured data sources to the canvas and bind UI components to that data. Filters, aggregates, and repeating templates update automatically as data or selections change.
 
+## `formatString` interpolation
+
+Strings bound to data (e.g. `Text.text`, `ProgressBar.label` / `value`, `Badge` `map` templates, `Repeat` template props) use **`${expression}`** syntax — **not** `{{expression}}`. Examples: `${name}`, `${$value}`, `${$count}`, `${/path/segment}`, `${points | percentOfMax}` inside a Repeat that defines the `percentOfMax` transform.
+
+**Exception:** optional **`emitTo`** URLs on inputs use the literal placeholder **`{{value}}`** for the current control value (client substitution, separate from formatString). See the filtering section below.
+
 ## Data Sources
 
 A data source is a named collection of rows with typed fields, stored in the Vuex A2UI store per surface.
@@ -180,7 +186,7 @@ Multiple named aggregates can be computed with optional `where` clauses for inli
       "$total": { "fn": "sum", "field": "amount", "format": "compact" },
       "$pending": { "fn": "count", "where": { "field": "status", "op": "eq", "value": "pending" } }
     },
-    "map": { "text": "Total: {{$total}} ({{$pending}} pending)" }
+    "map": { "text": "Total: ${$total} (${$pending} pending)" }
   }
 }
 ```
@@ -190,7 +196,7 @@ Multiple named aggregates can be computed with optional `where` clauses for inli
 The `map` property maps computed values to component props:
 
 - `{ "text": "$value" }` — maps the single `aggregate` result to the `text` prop
-- `{ "text": "{{$total}}" }` — interpolates named compound aggregate keys
+- `{ "text": "${$total}" }` — interpolates named compound aggregate keys
 - `{ "text": "fieldName" }` — maps a field from the first filtered row to the `text` prop
 
 ### Compact number formatting
@@ -212,19 +218,19 @@ The Repeat component iterates over filtered data source rows and renders a templ
 ### Basic usage
 
 ```jsonl
-{"updateComponents": {"surfaceId": "dash", "components": [{"id": "user-list", "component": "Repeat", "dataSource": {"source": "users"}, "template": {"Text": {"text": "{{name}} ({{role}})"}}, "emptyText": "No users found"}]}}
+{"updateComponents": {"surfaceId": "dash", "components": [{"id": "user-list", "component": "Repeat", "dataSource": {"source": "users"}, "template": {"Text": {"text": "${name} (${role})"}}, "emptyText": "No users found"}]}}
 ```
 
 ### Template syntax
 
-Templates use `{{field}}` placeholders that are resolved against each row:
+Templates use `${field}` placeholders that are resolved against each row:
 
 ```json
 {
   "template": {
     "ProgressBar": {
-      "label": "{{name}}: {{score}} pts",
-      "value": "{{score | percentOfMax}}"
+      "label": "${name}: ${score} pts",
+      "value": "${score | percentOfMax}"
     }
   }
 }
@@ -234,7 +240,7 @@ Placeholders are resolved recursively through all string values in the template 
 
 ### Transforms
 
-Transforms modify field values using the `{{field | transformName}}` pipe syntax.
+Transforms modify field values using the `${field | transformName}` pipe syntax.
 
 Built-in transforms:
 
@@ -253,8 +259,8 @@ Transforms are defined in the `transforms` property:
     },
     "template": {
       "ProgressBar": {
-        "label": "{{name}}",
-        "value": "{{score | percentOfMax}}"
+        "label": "${name}",
+        "value": "${score | percentOfMax}"
       }
     }
   }
@@ -268,7 +274,7 @@ The `percentOfMax` transform optionally accepts a `field` override. If omitted, 
 When the filtered data source has no rows, the `emptyText` string is displayed instead of the template:
 
 ```json
-{ "Repeat": { "dataSource": { "source": "results" }, "template": { "Text": { "text": "{{name}}" } }, "emptyText": "No results match your filters" } }
+{ "Repeat": { "dataSource": { "source": "results" }, "template": { "Text": { "text": "${name}" } }, "emptyText": "No results match your filters" } }
 ```
 
 ### Supported template components
@@ -410,7 +416,7 @@ Static progress bar. Commonly used inside Repeat templates for dynamic per-row r
 Inside a Repeat template with transforms:
 
 ```json
-{"Repeat": {"dataSource": {"source": "scores"}, "transforms": {"percentOfMax": {"fn": "percentOfMax"}}, "template": {"ProgressBar": {"label": "{{name}}: {{score}}", "value": "{{score | percentOfMax}}"}}}}
+{"Repeat": {"dataSource": {"source": "scores"}, "transforms": {"percentOfMax": {"fn": "percentOfMax"}}, "template": {"ProgressBar": {"label": "${name}: ${score}", "value": "${score | percentOfMax}"}}}}
 ```
 
 ### Repeat
@@ -420,7 +426,7 @@ Data-driven iteration component. Renders a template component for each row in a 
 | Prop | Type | Description |
 |------|------|-------------|
 | `dataSource` | `DataSourceBinding` | Data source to iterate over |
-| `template` | `Record<string, object>` | Component template (e.g. `{ "Text": { "text": "{{field}}" } }`) |
+| `template` | `Record<string, object>` | Component template (e.g. `{ "Text": { "text": "${field}" } }`) |
 | `transforms` | `Record<string, { fn: string, field?: string }>` | Named transform definitions |
 | `emptyText` | `string` | Text shown when no rows match |
 | `sortable` | `boolean` | Enable a sort direction dropdown above repeated content |
@@ -429,7 +435,7 @@ Data-driven iteration component. Renders a template component for each row in a 
 **Sorting:** When `sortable` is `true`, a dropdown appears above the repeated content with options: "Unsorted" (default), "Ascending", and "Descending". The `sortField` prop specifies which field to sort by. Sorting operates on raw data values.
 
 ```json
-{"Repeat": {"dataSource": {"source": "scores"}, "template": {"ProgressBar": {"label": "{{name}}", "value": "{{score | percentOfMax}}"}}, "sortable": true, "sortField": "score"}}
+{"Repeat": {"dataSource": {"source": "scores"}, "template": {"ProgressBar": {"label": "${name}", "value": "${score | percentOfMax}"}}, "sortable": true, "sortField": "score"}}
 ```
 
 See the [Repeat Component](#repeat-component) section above for detailed usage.
