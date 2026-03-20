@@ -160,19 +160,17 @@ Theme and `catalogId` are persisted in the SQLite cache. Both survive server res
 
 ### Catalog ID
 
-Surfaces accept an optional `catalogId` URI identifying the component catalog in use. When omitted, the default is `https://haliphax-openclaw.github.io/a2ui/1.0/catalog/all`.
+Surfaces accept an optional `catalogId` identifying the component catalog package. When omitted, the default is `@haliphax-openclaw/a2ui-catalog-all`.
 
 ```json
-{"createSurface": {"surfaceId": "main", "theme": "dark", "catalogId": "https://haliphax-openclaw.github.io/a2ui/1.0/catalog/basic"}}
+{"createSurface": {"surfaceId": "main", "theme": "dark", "catalogId": "@haliphax-openclaw/a2ui-catalog-basic"}}
 ```
 
-Catalog namespace: `https://haliphax-openclaw.github.io/a2ui/1.0/`
-
-| URI | Description |
-|-----|-------------|
-| `.../catalog/all` | All built-in and 3rd party components (default) |
-| `.../catalog/basic` | A2UI basic components only |
-| `.../catalog/extended` | All built-in components |
+| Catalog ID | Description |
+|------------|-------------|
+| `@haliphax-openclaw/a2ui-catalog-all` | All built-in components (default) |
+| `@haliphax-openclaw/a2ui-catalog-basic` | Basic components only |
+| `@haliphax-openclaw/a2ui-catalog-extended` | Extended components only |
 
 ## Querying State from SQLite
 
@@ -223,31 +221,43 @@ A2UI content is pushed as newline-delimited JSON commands. For full details and 
 
 ### Validation feedback
 
-`canvas_push` returns per-command validation results. Each command in the batch gets a result with `ok`, `command`, `index`, and `error` (on failure). Use this to detect and fix issues without guessing.
+`canvas_push` returns per-command validation results. Each command in the batch gets a result with `ok`, `command`, `index`, and optional `error`, `componentErrors`, and `componentWarnings`.
 
-Example response for a batch with one valid and one invalid command:
+**Structural validation** checks envelope fields (e.g. missing `surfaceId`, non-array `components`).
+
+**Component-level validation** checks each component's props against the schema defined in the catalog's `catalog.json`. Schemas are loaded from registered catalog packages at startup — there is no hardcoded schema map. Validation checks:
+- **Required props** — missing required props produce errors; the component is rejected
+- **Type mismatches** — wrong prop types produce errors; the component is rejected
+- **Unknown props** — props not in the schema produce warnings; the component is accepted
+- **Unknown components** — components not in any catalog produce warnings; the component is accepted
+
+Example response with component-level validation:
 
 ```json
 {
-  "ok": true,
+  "ok": false,
   "results": [
-    { "ok": true, "command": "createSurface", "index": 0 },
-    { "ok": false, "command": "updateComponents", "index": 1, "error": "updateComponents: components must be an array" }
+    {
+      "ok": false, "command": "updateComponents", "index": 0,
+      "error": "ValidationFailed: img1: Missing required prop 'src'",
+      "componentErrors": [{ "id": "img1", "errors": ["Missing required prop 'src'"], "warnings": [] }],
+      "componentWarnings": [{ "id": "txt1", "errors": [], "warnings": ["Unknown prop 'typo' on 'Text'"] }]
+    }
   ],
-  "errors": [
-    { "ok": false, "command": "updateComponents", "index": 1, "error": "updateComponents: components must be an array" }
-  ]
+  "errors": [...]
 }
 ```
 
-The `errors` array is a convenience filter — same entries as the failed results. If `errors` is empty, all commands succeeded.
+Valid components in the same `updateComponents` batch are still processed — only components with errors are rejected. Warnings are informational and do not prevent processing.
 
 Common validation errors:
 - `createSurface: missing surfaceId`
 - `updateComponents: components must be an array`
+- `Missing required prop '<name>'`
+- `Prop '<name>' expected type '<type>', got '<actual>'`
 - `Unrecognized command`
 
-When errors are returned, fix the failing commands and re-push. The valid commands in the batch are still processed — only the invalid ones are skipped.
+When errors are returned, fix the failing commands and re-push. Valid commands in the batch are still processed.
 
 > **Streaming interface:** Scripts and non-agent consumers can also connect directly to the canvas server's WebSocket and stream JSONL commands with per-command validation feedback in real-time. This is not available through agent tool calls, which use the batch interface described above.
 

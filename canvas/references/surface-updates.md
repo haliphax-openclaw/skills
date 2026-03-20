@@ -64,6 +64,16 @@ A complete surface needs at minimum an `updateComponents` followed by `createSur
 {"createSurface":{"surfaceId":"main","root":"root"}}
 ```
 
+## Component validation
+
+When `updateComponents` is processed, each component is validated against the schema defined in its catalog's `catalog.json`. Validation checks required props, prop types, and flags unknown props.
+
+- Components with **errors** (missing required props, type mismatches) are rejected and not applied
+- Components with **warnings** (unknown props, unknown component types) are accepted
+- Valid and invalid components can coexist in the same batch — valid ones are processed, invalid ones are skipped
+
+The validation response includes `componentErrors` and `componentWarnings` arrays with per-component details.
+
 ## Component reference
 
 See [components.md](components.md) for the full list of available components, their JSONL schemas, and props.
