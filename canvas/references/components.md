@@ -336,6 +336,40 @@ Toggle checkbox with label. Sends an `a2ui.checkboxChange` WebSocket message wit
 | `checked` | `boolean` | Initial checked state (default: `false`) |
 | `bind` | `FilterBind` | Optional filter binding. Defaults: `op: "eq"`, `nullValue: false`. When checked, filters rows where `field === true`. When unchecked (`nullValue` match), the filter clears. |
 
+### TextField
+
+Aligned with [A2UI v0.9 basic catalog](https://a2ui.org/specification/v0_9/basic_catalog.json): single- or multi-line text, optional validation, Checkable `checks`, and `accessibility` hints. Use **`variant`** (`shortText` \| `longText` \| `number` \| `obscured`); do **not** use `multiline` or `textFieldType`. For dates/times use **DateTimeInput**, not TextField.
+
+```json
+{"TextField": {"label": "Notes", "value": "", "variant": "longText"}}
+```
+
+**Data-bound value (DynamicString):**
+
+```json
+{"TextField": {"label": "Email", "value": {"path": "/user/email"}, "variant": "shortText"}}
+```
+
+**Checks (message shown when `condition` is `false`):**
+
+```json
+{"TextField": {"label": "Code", "value": "", "checks": [{"condition": {"path": "/form/codeValid"}, "message": "Invalid code"}]}}
+```
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `label` | `string` \| `{ literalString }` \| `{ path }` | Yes | Visible label; `path` reads from surface `dataModel` |
+| `value` | `string` \| `{ literalString }` \| `{ path }` | No | Field value; `path` binds to `dataModel` |
+| `variant` | `string` | No | `shortText` (default), `longText` (textarea), `number`, `obscured` (password) |
+| `validationRegexp` | `string` | No | HTML `pattern` on single-line inputs (not on `longText`) |
+| `checks` | `{ condition, message }[]` | No | v0.9 Checkable: `condition` is boolean or `{ path }` to a boolean; failures show `message` |
+| `accessibility` | `{ label?, description? }` | No | Extra assistive label and hint (each DynamicString); description renders below the field |
+| `placeholder` | `string` | No | Optional placeholder (renderer extension) |
+
+Sends `a2ui.textFieldChange` with `{ componentId, value }` on input. Supports optional `bind` / `emitTo` like other inputs.
+
+See also `canvas/jsonl/component-gallery.jsonl` in the workspace for a **TextField (variants)** column with four examples.
+
 ### Select
 
 Dropdown select. Can bind to a data source for reactive filtering.

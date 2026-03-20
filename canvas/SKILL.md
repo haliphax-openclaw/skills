@@ -274,7 +274,7 @@ For the full list of available A2UI components, their JSONL schemas, and use cas
 | Layout | Column, Row, Stack, Wrap, Spacer, Divider |
 | Containers | Accordion (collapsible panels), Tabs (switchable tabbed panels) |
 | Display | Text, Badge, Image, ProgressBar, Table, Repeat |
-| Input | Button, Checkbox, Select, MultiSelect, Slider |
+| Input | Button, Checkbox, TextField, Select, MultiSelect, Slider, DateTimeInput |
 
 ### Key features
 
