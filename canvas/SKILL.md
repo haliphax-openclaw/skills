@@ -290,5 +290,8 @@ For the full list of available A2UI components, their JSONL schemas, and use cas
 
 Both iframe content and A2UI components can take advantage of the canvas URL schemes:
 
-- **`openclaw://`** — triggers agent runs via a confirmation dialog. See [references/deep-linking.md](references/deep-linking.md) for the full URL format, parameters, and security details.
+- **`openclaw://`** — agent runs via a confirmation dialog (iframe HTML). See [references/deep-linking.md](references/deep-linking.md).
+- **`openclaw-fileprompt://`** — subagent task loaded from a file under **`<agent>/canvas`** (path after the scheme, not `?file=`). A2UI `Button` POSTs to `/api/file-spawn`. Same doc.
 - **`openclaw-canvas://`** — session-relative content references (e.g., images served from an agent's canvas directory).
+
+Canonical reference (stays in sync with this skill): [openclaw-canvas-web `docs/deep-linking.md`](https://github.com/haliphax-openclaw/openclaw-canvas-web/blob/main/docs/deep-linking.md).
